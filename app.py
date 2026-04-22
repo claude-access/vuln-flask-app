@@ -147,3 +147,12 @@ def greet():
 if __name__ == "__main__":
     # [V9] TP — debug=True in production is RCE via the Werkzeug debugger.
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+@app.route("/echo-cmd")
+def echo_cmd():
+    # Deliberately introduced to exercise the triage gate in Test B.
+    cmd = request.args.get("cmd", "echo hi")
+    return {"output": subprocess.check_output(cmd, shell=True, text=True)}
+
+# Test C: second commit to exercise sticky comment update.
