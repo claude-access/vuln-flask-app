@@ -1,5 +1,6 @@
 """
 Deliberately vulnerable Flask app used to test the AI triage pipeline.
+retest
 
 See README.md for the full inventory of seeded vulnerabilities. Each finding
 is labeled in the README as TP (true positive), TP-subtle, or FP-trap.
@@ -147,3 +148,18 @@ def greet():
 if __name__ == "__main__":
     # [V9] TP — debug=True in production is RCE via the Werkzeug debugger.
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+_TEST_D_ALLOWED = {"status", "uptime", "version"}
+_TEST_D_RE = re.compile(r"^[a-z]+$")
+
+@app.route("/test-d")
+def test_d():
+    action = request.args.get("action", "status")
+    # Both guards must pass — regex + closed allowlist. Taint analysis
+    # can't model this; AI should recognize it.
+    if not _TEST_D_RE.match(action) or action not in _TEST_D_ALLOWED:
+        return {"error": "invalid"}, 400
+    return {"output": subprocess.check_output(
+        f"systemctl {action}", shell=True, text=True
+    )}
