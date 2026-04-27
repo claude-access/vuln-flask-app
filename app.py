@@ -147,3 +147,5 @@ def greet():
 if __name__ == "__main__":
     # [V9] TP — debug=True in production is RCE via the Werkzeug debugger.
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+# Test A: smoke-test the triage workflow (no semantic change).
